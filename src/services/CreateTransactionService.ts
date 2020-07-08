@@ -4,7 +4,7 @@ import Transaction from '../models/Transaction';
 interface Request {
   title: string;
   value: number;
-  type: "income";
+  type: 'income' | 'outcome';
 }
 
 class CreateTransactionService {
@@ -15,6 +15,12 @@ class CreateTransactionService {
   }
 
   public execute({title,type,value}:Request): Transaction {
+    const { total } = this.transactionsRepository.getBalance()
+
+    if(type == "outcome" && total < value) {
+      throw new Error("You do not have enough balance")
+    }
+
     const transaction = this.transactionsRepository.create({
       title,
       type,
